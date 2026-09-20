@@ -272,13 +272,14 @@ if api_keys_provided:
                 with st.spinner(tools_message):
                     try:
                         # Calculate number of days from start date
-                        response = run_travel_planner(
-                            destination=destination,
-                            num_days=num_days,
-                            preferences=preferences,
-                            budget=budget,
-                            google_maps_key=google_maps_key or ""
-                        )
+                        response = asyncio.run(run_mcp_travel_planner(
+                                destination=destination,
+                                num_days=num_days,
+                                preferences=preferences,
+                                budget=budget,
+                                google_maps_key=google_maps_key or ""
+                                       ))
+                                                    
 
                         # Store the response in session state
                         st.session_state.itinerary = response

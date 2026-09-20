@@ -1,5 +1,5 @@
 streamlit
-agno>=2.2.10
-openai
+agno>=2.2.11
+ollama
 icalendar
 google-search-results
