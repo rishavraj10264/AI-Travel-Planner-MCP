@@ -86,7 +86,7 @@ async def run_mcp_travel_planner(destination: str, num_days: int, preferences: s
         travel_planner = Agent(
             name="Travel Planner",
             role="Creates travel itineraries using Airbnb, Google Maps, and Google Search",
-            model=Ollama(id="qwen3:8b"),
+            model=Ollama(id="gpt-oss:120b"),
             description=dedent(
                 """\
                 You are a professional travel consultant AI that creates highly detailed travel itineraries directly without asking questions.
@@ -279,6 +279,7 @@ if api_keys_provided:
                                 budget=budget,
                                 google_maps_key=google_maps_key or ""
                                        ))
+
                                                     
 
                         # Store the response in session state
