@@ -5,7 +5,7 @@ from agno.agent import Agent
 from agno.run.agent import RunOutput
 from agno.tools.mcp import MultiMCPTools
 from agno.tools.googlesearch import GoogleSearchTools
-from agno.models.openai import OpenAIChat
+from agno.models.ollama import Ollama
 from icalendar import Calendar, Event
 from datetime import datetime, timedelta
 import streamlit as st
@@ -60,8 +60,7 @@ def generate_ics_content(plan_text: str, start_date: datetime = None) -> bytes:
             cal.add_component(event)
 
     return cal.to_ical()
-
-async def run_mcp_travel_planner(destination: str, num_days: int, preferences: str, budget: int, openai_key: str, google_maps_key: str):
+async def run_mcp_travel_planner(destination: str, num_days: int, preferences: str, budget: int, google_maps_key: str):
     """Run the MCP-based travel planner agent with real-time data access."""
 
     try:
@@ -87,7 +86,7 @@ async def run_mcp_travel_planner(destination: str, num_days: int, preferences: s
         travel_planner = Agent(
             name="Travel Planner",
             role="Creates travel itineraries using Airbnb, Google Maps, and Google Search",
-            model=OpenAIChat(id="gpt-4o", api_key=openai_key),
+            model=Ollama(id="qwen3:8b"),
             description=dedent(
                 """\
                 You are a professional travel consultant AI that creates highly detailed travel itineraries directly without asking questions.
@@ -176,9 +175,6 @@ async def run_mcp_travel_planner(destination: str, num_days: int, preferences: s
     finally:
         await mcp_tools.close()
 
-def run_travel_planner(destination: str, num_days: int, preferences: str, budget: int, openai_key: str, google_maps_key: str):
-    """Synchronous wrapper for the async MCP travel planner."""
-    return asyncio.run(run_mcp_travel_planner(destination, num_days, preferences, budget, openai_key, google_maps_key))
     
 # -------------------- Streamlit App --------------------
     
@@ -202,19 +198,18 @@ with st.sidebar:
     st.header("🔑 API Keys Configuration")
     st.warning("⚠️ These services require API keys:")
 
-    openai_api_key = st.text_input("OpenAI API Key", type="password", help="Required for AI planning")
+    
     google_maps_key = st.text_input("Google Maps API Key", type="password", help="Required for location services")
 
-    # Check if API keys are provided (both OpenAI and Google Maps are required)
-    api_keys_provided = openai_api_key and google_maps_key
-
+    # Check if API keys are provided ( Google Maps are required)
+    api_keys_provided = bool(google_maps_key)
     if api_keys_provided:
-        st.success("✅ All API keys configured!")
+     st.success("✅ Google Maps configured")
     else:
-        st.warning("⚠️ Please enter both API keys to use the travel planner.")
+        st.warning("⚠️ Please enter your Google Maps API key.")
         st.info("""
         **Required API Keys:**
-        - **OpenAI API Key**: https://platform.openai.com/api-keys
+        
         - **Google Maps API Key**: https://console.cloud.google.com/apis/credentials (for location services)
         """)
 
@@ -282,7 +277,6 @@ if api_keys_provided:
                             num_days=num_days,
                             preferences=preferences,
                             budget=budget,
-                            openai_key=openai_api_key,
                             google_maps_key=google_maps_key or ""
                         )
 
